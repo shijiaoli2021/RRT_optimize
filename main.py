@@ -3,10 +3,10 @@ import model.rrt_point as point
 import numpy as np
 import pickle
 import random
+import model.multy_line_rrt as mlrrt
 
 ENTRANCE_PATH = "./vegetable2_area_exit_entrance_channel_2m.pkl"
 ENTRANCE_LIST = [[116.276397908911, 39.8777897962623], [116.276470402447, 39.8777936233885]], [[116.27661422027, 39.8778012159132], [116.276686713806, 39.8778050430395]], [[116.276830531628, 39.8778126355641], [116.276903025165, 39.8778164626904]], [[116.277046842987, 39.8778240552151], [116.277119336524, 39.8778278823413]], [[116.277263154346, 39.877835474866], [116.277335647882, 39.8778393019922]], [[116.277479465705, 39.8778468945169], [116.277551959241, 39.8778507216432]], [[116.277173338355, 39.8772256091773], [116.277103115606, 39.8771964563507]], [[116.276961173538, 39.8771679438638], [116.27689313786, 39.8771143990033]], [[116.27675115655, 39.8770863241726], [116.276683120872, 39.877032779312]], [[116.276541218046, 39.8770038291691], [116.276471196737, 39.8769724297078]]
-
 def get_entrance(path):
     # f = open("./vegetable2_area_exit_entrance_channel_2m.pkl", 'rb')
     # inOutAreaData = pickle.load(f)
@@ -33,7 +33,7 @@ latitude_min = min(aisle_array[:, 1])
 all_entrance = get_entrance(ENTRANCE_PATH)
 args = {
     "startPosition": all_entrance[0],
-    "endPosition": all_entrance[6],
+    "endPosition": all_entrance[5],
     "terminalDis": 3,
     "aisle": aisle,
     "lonRange": [longitude_min, longitude_max],
@@ -44,3 +44,20 @@ rrt = rrt.RRT(**args)
 rrt.exploreRoute()
 rrt.buildRoute()
 rrt.plotMap()
+
+startPositions = get_entrance(ENTRANCE_PATH)
+endPositions = get_entrance(ENTRANCE_PATH)
+print(len(ENTRANCE_LIST))
+args2 = {
+    "startPositions": [all_entrance[0]],
+    "endPositions": all_entrance,
+    "terminalDis": 3,
+    "aisle": aisle,
+    "lonRange": [longitude_min, longitude_max],
+    "latRange": [latitude_min, latitude_max],
+    "step": 3
+}
+mlrrt = mlrrt.MLRRT(**args2)
+mlrrt.exploreRoute()
+mlrrt.prepareRoute()
+mlrrt.plotMap()
