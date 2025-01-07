@@ -1,6 +1,6 @@
 import model.rrt_point as rrtPoint
 import random
-from shapely.geometry import Point, Polygon
+from shapely.geometry import Point, Polygon, LineString
 import matplotlib.pyplot as plt
 
 '''
@@ -49,7 +49,7 @@ class MLRRT:
             point = self.productRandomPoint()
             prePoint = self.findNear(point)
             newPoint = self.productNewPoint(point, prePoint)
-            while (not Point(newPoint.lon, newPoint.lat).within(self.aisle)):
+            while (not LineString([(newPoint.lon, newPoint.lat), (prePoint.lon, newPoint.lat)]).within(self.aisle)):
                 point = self.productRandomPoint()
                 prePoint = self.findNear(point)
                 newPoint = self.productNewPoint(point, prePoint)
@@ -140,27 +140,41 @@ class MLRRT:
         return
 
     def plotMap(self):
-        plt.figure()
+        plt.figure(figsize=(12.5, 5))
         plt.xlim((self.lonRange[0], self.lonRange[1]))
         plt.ylim((self.latRange[0], self.latRange[1]))
-        plt.xlabel('x')
-        plt.ylabel('y')
+        plt.xticks([])
+        plt.yticks([])
+        plt.axis("off")
+        # plt.xlabel('x')
+        # plt.ylabel('y')
         # plt.xticks(np.arange(x_width))
         # plt.yticks(np.arange(y_width))
-        plt.grid()
+        # plt.grid()
         # plt.plot(self.startPoint.lat, self.startPoint.lon, 'ro')
         # plt.plot(self.endPoint.lat, self.endPoint.lon, marker='o', color='yellow')
         import numpy as np
         aisle_array = np.array(self.original_aisle)
-        plt.plot(aisle_array[:, 0], aisle_array[:, 1], 'k-', linewidth='1')
+        # plt.plot(aisle_array[:, 0], aisle_array[:, 1], '-', color = 'white', linewidth='1')
 
         print('len(routine_list)', len(self.routes))
-        treeNodeX = [point.lon for point in self.tree]
-        treeNodeY = [point.lat for point in self.tree]
-        plt.scatter(treeNodeX, treeNodeY, color='red', marker='o')
+        routeSet = set()
+        for route in self.routes:
+            routeSet.update(route)
+        inValidNode = [node for node in self.tree if node not in routeSet]
+        inValidNode_X = [point.lon for point in inValidNode]
+        inValidNode_Y = [point.lat for point in inValidNode]
+        validNode_X = [point.lon for point in routeSet]
+        validNode_Y = [point.lat for point in routeSet]
         # 绘制route
         for route in self.routes:
             routeY = [point.lat for point in route]
             routeX = [point.lon for point in route]
-            plt.plot(routeX, routeY, '-', linewidth='2', color='violet', marker='o')
+            plt.plot(routeX, routeY, '-', linewidth='2', color='#53A8FF', zorder=1)
+        plt.scatter(inValidNode_X, inValidNode_Y, color='#D7D7D7', marker='o', zorder=2)
+        plt.scatter(validNode_X, validNode_Y, color='#5C5CFF', marker='o', zorder=2)
+        x, y = self.aisle.exterior.xy
+        plt.fill(x, y, fc='white', edgecolor='white', label='原始多边形')
+        plt.savefig("./figures/mlrrt.svg", bbox_inches= 'tight', transparent=True)
+        plt.savefig("./figures/mlrrt.png", bbox_inches= 'tight', transparent=True)
         plt.show()

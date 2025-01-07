@@ -94,7 +94,7 @@ def plot2(point):
     plt.show()
 
 
-def plot_propagation_tree(roots, node_colors, angle_start=0, angle_range=2 * np.pi, radius_step=1, min_angle_gap=0.4,
+def plot_propagation_tree(roots, node_colors, angle_start=np.pi / 6, angle_range=2 * np.pi, radius_step=1, min_angle_gap=0.4,
                           start_date='2022-05-12', date_interval=5):
     """
     绘制传播树的极坐标图，调整点的分布以避免重叠，将r轴刻度映射为日期，并设置日期间隔。
@@ -118,7 +118,7 @@ def plot_propagation_tree(roots, node_colors, angle_start=0, angle_range=2 * np.
         current_angle = angle_start
 
         # 当前节点
-        r = node.level * radius_step  # r 由 level 决定
+        r = (node.level+1) * radius_step  # r 由 level 决定
         coords.append((r, current_angle, node.idx, node.level))
         if node.pre is not None:
             connections.append((node.pre, node))  # 存储父子节点对象关系
@@ -131,12 +131,13 @@ def plot_propagation_tree(roots, node_colors, angle_start=0, angle_range=2 * np.
                 current_angle += angle_step + min_angle_gap  # 添加最小角度间隔
     # 创建图形和极坐标
     fig, ax = plt.subplots(subplot_kw={'projection': 'polar'}, figsize=(8, 8))
+    interval = angle_range / len(tree)
     for i in range(len(roots)):
         root = roots[i]
         coords = []
         connections = []
         # 解析根节点
-        parse_node(root, angle_start, angle_range)
+        parse_node(root, angle_start + i * interval, interval)
 
         # 获取最大层级和分配颜色
         max_level = max(level for r, theta, idx, level in coords)  # 获取最大层级
@@ -147,7 +148,7 @@ def plot_propagation_tree(roots, node_colors, angle_start=0, angle_range=2 * np.
         }
         # 绘制节点  # 所有节点的颜色
         for r, theta, idx, level in coords:
-            ax.plot(theta, r, 'o', color=node_colors[i], markersize=6, label=f'Node {idx}')
+            ax.plot(theta, r, 'o', color=node_colors[i], markersize=8, label=f'Node {idx}')
             # ax.text(theta, r, f'{idx}', fontsize=5, ha='center', va='center')
 
         # 绘制边并根据起始层级决定颜色
@@ -367,11 +368,11 @@ def plotDeepFirst(point:Point, angleMap, scatterData, lineData, pointMap, min_co
         for cashPoint in list:
             plotDeepFirst(cashPoint, angleMap, scatterData, lineData, pointMap, min_const)
 
-data = np.array(pd.read_excel("../data/建图数据.xlsx").values)
-
+data = np.array(pd.read_excel("../data/ex8.xlsx").values)
+print(data)
 baseTime = np.datetime64('1970-01-01')
 dataLabel = data[:, 1]
-data[:, 1] = [int((np.datetime64(t) - baseTime) / np.timedelta64(1, 'D')) for t in data[:, 1]]
+# data[:, 1] = [int((np.datetime64(t) - baseTime) / np.timedelta64(1, 'D')) for t in data[:, 1]]
 r_to_label = {data[i, 1] * RADIUS_STEP:dataLabel[i] for i in range(len(data))}
 timeIdx = {}
 minD = min(data[:, 1])
@@ -404,6 +405,8 @@ for i in range(len(data)):
 print("树中根节点数量：{}".format(len(tree)))
 point = tree[0]
     # displayChild(point)
-plot_propagation_tree(tree[:10], COLOR)
+plot_propagation_tree(tree, COLOR)
+plt.savefig("../figures/polar.svg", bbox_inches= 'tight', transparent=True)
+plt.savefig("../figures/polar.png", bbox_inches= 'tight', transparent=True)
 plt.show()
 

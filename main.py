@@ -40,10 +40,10 @@ args = {
     "latRange": [latitude_min, latitude_max],
     "step": 3
 }
-rrt = rrt.RRT(**args)
-rrt.exploreRoute()
-rrt.buildRoute()
-rrt.plotMap()
+# rrt = rrt.RRT(**args)
+# rrt.exploreRoute()
+# rrt.buildRoute()
+# rrt.plotMap()
 
 startPositions = get_entrance(ENTRANCE_PATH)
 endPositions = get_entrance(ENTRANCE_PATH)
