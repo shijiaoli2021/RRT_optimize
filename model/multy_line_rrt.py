@@ -1,6 +1,6 @@
 import model.rrt_point as rrtPoint
 import random
-from shapely.geometry import Point, Polygon, LineString
+from shapely.geometry import Point, Polygon, LineString, shape, MultiPolygon
 import matplotlib.pyplot as plt
 
 '''
@@ -10,16 +10,40 @@ class MLRRT:
     def __init__(self, **kwargs):
         # 初始化路径树
         print(kwargs)
+        self.init_args(**kwargs)
+
+    def init_args(self, **kwargs):
         self.buildStartAndEndPoints(kwargs['startPositions'], kwargs['endPositions'])
         self.teminalDis = kwargs['terminalDis']
         self.initRouteTree()
         self.finishNum = 0
         self.routes = []
-        self.aisle = Polygon(kwargs['aisle'])
-        self.original_aisle = kwargs['aisle']
         self.lonRange = kwargs['lonRange']
         self.latRange = kwargs['latRange']
         self.step = kwargs['step']
+        aisle = kwargs['aisle']
+        if kwargs['aisle_json'] is not None:
+            # 解析 GeoJSON 数据中的几何部分
+            geojson_data = kwargs['aisle_json']
+            feature = geojson_data['features'][0]
+            geometry = feature['geometry']
+            # 将坐标转换为 Shapely 的 Polygon 对象
+            polygon = shape(geometry)
+            polygon = polygon.buffer(0)
+            self.aisle = polygon
+            return
+        if not kwargs['is_multi_polygon']:
+            self.aisle = Polygon(aisle)
+            self.original_aisle = aisle
+        else:
+            polygons = []
+            for area_cash in aisle:
+                polygons.append(Polygon(area_cash))
+            self.aisle = MultiPolygon(polygons)
+            if not self.aisle.is_valid:
+                print("-----------buffer----------")
+                self.aisle = self.aisle.buffer(0)
+
 
     def buildPoints(self, positionsList):
         return [rrtPoint.Point(position[1], position[0]) for position in positionsList]

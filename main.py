@@ -31,15 +31,15 @@ longitude_min = min(aisle_array[:, 0])
 latitude_max = max(aisle_array[:, 1])
 latitude_min = min(aisle_array[:, 1])
 all_entrance = get_entrance(ENTRANCE_PATH)
-args = {
-    "startPosition": all_entrance[0],
-    "endPosition": all_entrance[5],
-    "terminalDis": 3,
-    "aisle": aisle,
-    "lonRange": [longitude_min, longitude_max],
-    "latRange": [latitude_min, latitude_max],
-    "step": 3
-}
+# args = {
+#     "startPosition": all_entrance[0],
+#     "endPosition": all_entrance[5],
+#     "terminalDis": 3,
+#     "aisle": aisle,
+#     "lonRange": [longitude_min, longitude_max],
+#     "latRange": [latitude_min, latitude_max],
+#     "step": 3
+# }
 # rrt = rrt.RRT(**args)
 # rrt.exploreRoute()
 # rrt.buildRoute()
@@ -53,11 +53,20 @@ args2 = {
     "endPositions": all_entrance,
     "terminalDis": 3,
     "aisle": aisle,
+    "aisle_json": None,
     "lonRange": [longitude_min, longitude_max],
     "latRange": [latitude_min, latitude_max],
-    "step": 3
+    "step": 3,
+    "is_multi_polygon": False
 }
 mlrrt = mlrrt.MLRRT(**args2)
-mlrrt.exploreRoute()
-mlrrt.prepareRoute()
-mlrrt.plotMap()
+res = []
+for i in range(1, len(all_entrance)):
+    args2['endPositions'] = endPositions[1:(i+1)]
+    mlrrt.init_args(**args2)
+    mlrrt.exploreRoute()
+    mlrrt.prepareRoute()
+    sum_num = sum([len(route) for route in mlrrt.routes])
+    res.append(sum_num / len(mlrrt.tree))
+print(res)
+# mlrrt.plotMap()
