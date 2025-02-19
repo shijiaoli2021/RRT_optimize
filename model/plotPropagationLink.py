@@ -158,7 +158,7 @@ def plot_propagation_tree(roots, node_colors, angle_start=np.pi / 6, angle_range
             edge_color = level_colors[parent.level]  # 边的颜色取决于父节点的层级
             ax.plot([parent_coord[1], child_coord[1]], [parent_coord[0], child_coord[0]], color=edge_color)
     # 设置标题和样式
-    ax.set_title("Propagation Tree in Polar Coordinates", va='bottom')
+    # ax.set_title("Propagation Tree in Polar Coordinates", va='bottom')
     ax.grid(True)
     # 将r值映射为日期并设置刻度
     start_date = datetime.strptime(start_date, '%Y-%m-%d')
@@ -184,7 +184,7 @@ def plot_propagation_tree(roots, node_colors, angle_start=np.pi / 6, angle_range
         Line2D([0], [0], color=colormap(1 - 0.75), lw=2, label=f'Level 3'),
         Line2D([0], [0], color=colormap(1 - 1), lw=2, label=f'Level {max_level}')
     ]
-    ax.legend(handles=legend_elements, loc='upper right')
+    # ax.legend(handles=legend_elements, loc='upper right')
 
 
 def plot_propagation_tree_with_main_arcs(root, angle_start=0, angle_range=2 * np.pi, radius_step=1, min_angle_gap=0.3,
@@ -386,6 +386,7 @@ for i in range(len(data)):
     map[item[0]] = point
 
 tree = []
+treeIdx = set()
 # 构建树关系
 for i in range(len(data)):
     item = data[i]
@@ -396,7 +397,9 @@ for i in range(len(data)):
         prePoint = Point(item[2], 0)
         point.setPre(prePoint)
         prePoint.setNext(point)
-        tree.append(prePoint)
+        if item[2] not in treeIdx:
+            tree.append(prePoint)
+            treeIdx.add(item[2])
         map[item[2]] = prePoint
     else:
         prePoint = map[item[2]]

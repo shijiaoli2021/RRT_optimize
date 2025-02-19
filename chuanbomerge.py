@@ -4,11 +4,11 @@ import matplotlib.image as mpimg
 plt.rcParams['font.family'] = 'SimHei'
 
 titles = ["（a）病例-主体6传播过程", "（b）病例-主体13传播过程", "（c）病例-主体1传播过程", "（d）病例-主体51传播过程"]
-image_files = ["figures/(a) 病例-主体6传播过程.png",
-               "figures/(b) 病例-主体13传播过程.png",
-               "figures/(c) 病例-主体1传播过程.png",
-               "figures/(d) 病例-主体51传播过程.png"]
-fig, axes = plt.subplots(1, 4, figsize=(32, 6))  # 创建一个2x2的网格，调整画布大小
+image_files = ["figures/(a) 病例-主体6传播过程1.png",
+               "figures/(b) 病例-主体13传播过程1.png",
+               "figures/(c) 病例-主体1传播过程1.png",
+               "figures/(d) 病例-主体51传播过程1.png"]
+fig, axes = plt.subplots(2, 2, figsize=(16, 10))  # 创建一个2x2的网格，调整画布大小
 
 # 展示每张图片，并为每张图片添加标题
 for i, ax in enumerate(axes.flat):
